@@ -1,14 +1,11 @@
 import JWT from 'jsonwebtoken'
-import { prismaClient } from "../clients/db";
 import { User } from '@prisma/client';
+import { JWTUser } from '../interfaces';
 
 const JWT_Secret = '@twitterClone#Yolo.Saru'
 
 class JWTService {
-    public static async  generateUserToken(email:string){
-        const user  = await prismaClient.user.findUnique({
-            where:{email: email}
-        });
+    public static generateUserToken(user:User){
 
         const paylaod = {
             id:user?.id,
@@ -18,6 +15,15 @@ class JWTService {
         const token = JWT.sign(paylaod,JWT_Secret);
         return token;
     };
+
+    public static  getUserByToken(token:string){
+        try{
+        return JWT.verify(token , JWT_Secret) as JWTUser;
+        }
+        catch(error){
+            return null
+        }
+    }
 }
 
 export default JWTService;
